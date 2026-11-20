@@ -68,6 +68,7 @@ public class PlayerController : MonoBehaviour
         //Jump
         if (jump_pressed && is_grounded)
         {
+            Debug.Log("Jumping! Setting is_grounded = false");
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpforce);
             is_grounded = false;
         }
