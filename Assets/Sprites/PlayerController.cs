@@ -8,10 +8,9 @@ public class PlayerController : MonoBehaviour
     
     //Movement
     public float moveSpeed = 7f;
-    public float jumpforce = 12f;
+    public float jumpforce = 14f;
     private Vector2 direction = Vector2.zero;
     private Vector2 velocity = Vector2.zero;
-    private bool jump_pressed = false;
     private bool is_grounded = true;
     
     void Start()
@@ -23,12 +22,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
 {
-        //Jump Input
-        if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            jump_pressed = true;
-        }
-
         //Flip Sprite Scale based on Input
         if (direction.x > 0)
         {
@@ -51,6 +44,7 @@ public class PlayerController : MonoBehaviour
             ani.SetBool("IsDucking", isDucking);
         }
     }
+
     void FixedUpdate()
     {
         // Left/Right Input
@@ -64,24 +58,18 @@ public class PlayerController : MonoBehaviour
 
         //Move Horizontal
         rb.linearVelocity = new Vector2(velocity.x, rb.linearVelocity.y);
-
-        //Jump
-        if (jump_pressed && is_grounded)
-        {
-            Debug.Log("Jumping! Setting is_grounded = false");
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpforce);
-            is_grounded = false;
         }
 
-        jump_pressed = false;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        string obj_name = collision.gameObject.name.ToLower();
-        if (obj_name.Contains("floor") || obj_name.Contains("platform"))
+        private void OnCollisionEnter2D(Collision2D collision)
         {
-            is_grounded = true;
+            string obj_name = collision.gameObject.name.ToLower();
+
+            // Automatic bounce when landing on a floor or platform from above
+        if ((obj_name.Contains("floor") || obj_name.Contains("platform")) && collision.relativeVelocity.y >= 0f)
+        {
+            Debug.Log("Bouncing! Applying jumpforce: " + jumpforce);
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpforce);
+            is_grounded = false;
         }
     }
 }
